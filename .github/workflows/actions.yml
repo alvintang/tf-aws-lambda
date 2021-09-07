@@ -52,10 +52,10 @@ jobs:
         id: plan
         run: terraform plan -no-color
         working-directory: terraform
-          #- name: Terraform Apply
-          #id: apply
-          #run: terraform apply --auto-approve -no-color
-          #working-directory: terraform
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply --auto-approve -no-color
+        working-directory: terraform
   # destroy_uat:
   #   needs: deploy_and_uat
   #   environment: uat # configured for approval
