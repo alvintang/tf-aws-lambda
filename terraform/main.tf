@@ -23,6 +23,7 @@ resource "aws_lambda_function" "test_lambda" {
   function_name = "tf_lambda"
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "hello.lambda_handler"
+  publish	= true
 
   # The filebase64sha256() function is available in Terraform 0.11.12 and later
   # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
