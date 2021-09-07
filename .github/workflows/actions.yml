@@ -21,6 +21,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: hello.zip
+          path: |
+            hello.zip
   deploy_and_uat:
     needs: test_and_build
     environment: uat # configured for approval
