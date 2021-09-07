@@ -1,0 +1,76 @@
+name: Test, Build, Deploy App
+on:
+  workflow_dispatch:
+jobs:
+  test_and_build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: Run py test
+        run: python hello.py
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Zip py
+        run:
+          zip hello.py
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: hello.zip
+  deploy_and_uat:
+    needs: test_and_build
+    environment: uat # configured for approval
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Download pkg
+        uses: actions/download-artifact@v2
+        with:
+          name: hello.zip
+          path: /tmp/
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v1
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: terraform
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: terraform
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        working-directory: terraform
+          #- name: Terraform Apply
+          #id: apply
+          #run: terraform apply --auto-approve -no-color
+          #working-directory: terraform
+  # destroy_uat:
+  #   needs: deploy_and_uat
+  #   environment: uat # configured for approval
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: terraform
+  #   env:
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #   steps:
+  #     - name: Check out repository code
+  #       uses: actions/checkout@v2
+  #     - name: Setup terraform
+  #       uses: hashicorp/setup-terraform@v1
+  #     - name: Terraform Init
+  #       id: init
+  #       run: terraform init
+  #     - name: Terraform Destroy
+  #       id: destroy
+  #       run: terraform destroy --auto-approve -no-color -var="env=uat" -var="ssh_pub_key=${{ secrets.SSH_PUBLIC_KEY }}"
