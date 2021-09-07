@@ -36,6 +36,8 @@ jobs:
         with:
           name: hello.zip
           path: /tmp/
+      - name: Check out repository code
+        uses: actions/checkout@v2
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v1
       - name: Terraform Init
