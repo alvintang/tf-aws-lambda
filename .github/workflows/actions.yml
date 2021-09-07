@@ -16,7 +16,6 @@ jobs:
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Zip py
         run: |
-          apt-get install zip
           zip -r hello.zip hello.py
       - name: Archive build artifacts
         uses: actions/upload-artifact@v2
